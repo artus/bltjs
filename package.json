@@ -1,0 +1,23 @@
+{
+  "name": "bltjs",
+  "version": "1.0.0",
+  "description": "A BigchainDB Load Tester",
+  "main": "dist/blt.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/artusvranken/bltjs"
+  },
+  "keywords": [
+    "BigchainDB",
+    "blockchain",
+    "blt",
+    "load",
+    "testing",
+    "TypeScript"
+  ],
+  "author": "Artus Vranken",
+  "license": "ISC"
+}
