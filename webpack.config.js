@@ -1,9 +1,11 @@
 const path = require('path');
 
 module.exports = {
-  entry: './Blt.js',
+  entry: './dist/Blt.js',
   output: {
       path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    library: "blt_module",
+    libraryTarget: "umd"
   }
 };
