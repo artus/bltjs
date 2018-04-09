@@ -7,11 +7,15 @@ const HTTP = "http";
 const HTTPS = "https";
 
 const VALID_HOST = "test.bigchaindb.com";
-const VALID_PORT = "9884";
+const VALID_PORT = "9984";
 const VALID_API_PATH = "/api/v1/";
 
 function initializeNewBlt() {
     return new bltjs.Blt(HTTPS, VALID_HOST);
+}
+
+function initializeLocalBlt() {
+    return new bltjs.Blt(HTTP, "localhost", "9984");
 }
 
 describe("Btl.js", function () {
@@ -33,7 +37,7 @@ describe("Btl.js", function () {
             assert.notEqual(newBlt, undefined);
         });
 
-        it("should set instance variables correclty.", function () {
+        it("should set instance variables correctly.", function () {
             let newBlt = new bltjs.Blt(HTTP, VALID_HOST, VALID_PORT, VALID_API_PATH);
             let resultingUrl = HTTP + "://" + VALID_HOST + ":" + VALID_PORT;
 
@@ -57,7 +61,7 @@ describe("Btl.js", function () {
             assert.notEqual(undefined, nodeInfo.version);
         });
 
-        it("should load ApiInfo correclty.", async function () {
+        it("should load ApiInfo correctly.", async function () {
 
             let newBlt = initializeNewBlt();
 
@@ -71,6 +75,21 @@ describe("Btl.js", function () {
             assert.notEqual(undefined, apiInfo.streams);
             assert.notEqual(undefined, apiInfo.transactions);
         });
+
+    });
+
+    describe("testCreateTransactions()", function() {
+
+        it("Should return a Promise when all transactions are appended.", function(done) {
+            let newBlt = initializeLocalBlt();
+
+            newBlt.testCreateTransactions("test", 5).then(result => {
+                done();
+            }).catch( error => {
+                done(error);
+            })
+            
+        })
 
     });
 

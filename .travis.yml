@@ -1,9 +1,17 @@
+sudo: required
+
 langugages: node_js
 
 node_js:
   - node
 
+services:
+  - docker
+
 install:
+  - git clone https://github.com/bigchaindb/bigchaindb.git
+  - docker-compose build bigchaindb
+  - docker-compose up -d bdb
   - npm install
 
 script:

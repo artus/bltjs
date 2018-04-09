@@ -12,7 +12,7 @@ export class ApiInfo {
     /**
      * Create a new ApiInfo object from a JSON Object.
      * @param {any} jsonObject - The JSON Object we will extract information from.
-     * @returnes {ApiInfo} The constructed ApiInfo object.
+     * @returns {ApiInfo} The constructed ApiInfo object.
      */
     public static copyConstructor(jsonObject : any) : ApiInfo {
         let newApiInfo = new ApiInfo();
