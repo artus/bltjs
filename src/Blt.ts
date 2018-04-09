@@ -1,4 +1,9 @@
 import * as driver from 'bigchaindb-driver';
+import { Promise } from 'es6-promise';
+
+import { NodeInfo } from './NodeInfo';
+
+import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
 
 /**
  * Blt (BigchainDB Load Tester) is the main class which we use to execute functionality in regards to the bigchaindb node/cluster we connected to.
@@ -17,10 +22,10 @@ export class Blt {
      * @param {string} [api_id = ""] - The ID of the application.
      * @param {string} [api_key = ""] - The Key of the application.
      */
-    constructor(public connection_protocol : string, public node_host: string, public node_port : string = "", public api_path : string = "/api/v1/", public app_id: string = "", public app_key: string = "") {
+    constructor(public connection_protocol: string, public node_host: string, public node_port: string = "", public api_path: string = "/api/v1/", public app_id: string = "", public app_key: string = "") {
 
         if (connection_protocol == undefined) throw new Error("Connection protocol is undefined.");
-        if (node_host == undefined)  throw new Error("Node host is undefined.");
+        if (node_host == undefined) throw new Error("Node host is undefined.");
 
         if (this.app_id === "" || this.app_key === "") {
             this.connection = new driver.Connection(this.api_url);
@@ -37,7 +42,7 @@ export class Blt {
      * Get the root url of the node. (e.g. https://test.bigchaindb.com)
      * @returns {string} The root url of the node.
      */
-    get root_url() : string {
+    get root_url(): string {
         return this.connection_protocol + "://" + this.node_host + ":" + this.node_port;
     }
 
@@ -45,8 +50,28 @@ export class Blt {
      * Get the url of the api. (e.g. "https://test.bigchaindb.com/api/v1/")
      * @returns {string} The api url.
      */
-    get api_url() : string {
+    get api_url(): string {
         return this.root_url + this.api_path;
+    }
+
+    /**
+     * Retrieve the Node information (from the node url and node api url).
+     * 
+     * @returns {Promise<NodeInfo>} The nodes information encapsulated in a NodeInfo object.
+     */
+    getNodeInformation(): Promise<NodeInfo> {
+
+        return new Promise<NodeInfo>((resolve, reject) => {
+
+            axios.get(this.root_url).then(response => {
+
+                let returnedNodeInfo = NodeInfo.copyConstructor(response.data);
+                resolve(returnedNodeInfo);
+            }).catch(error => {
+                reject(new Error(error));
+            })
+
+        });
     }
 
 }
