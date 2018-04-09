@@ -10,8 +10,10 @@ services:
 
 install:
   - git clone https://github.com/bigchaindb/bigchaindb.git
+  - cd bigchaindb
   - docker-compose build bigchaindb
   - docker-compose up -d bdb
+  - cd ..
   - npm install
 
 script:
