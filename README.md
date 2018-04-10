@@ -8,4 +8,6 @@
 
 ## Installation
 
-TODO
+```shell
+npm install bltjs
+```
