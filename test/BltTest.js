@@ -52,7 +52,7 @@ describe("Btl.js", function () {
 
         it("should load NodeInfo correctly.", async function () {
 
-            let newBlt = initializeNewBlt();
+            let newBlt = initializeLocalBlt();
 
             let nodeInfo = await newBlt.getNodeInformation();
             assert.notEqual(undefined, nodeInfo.docs);
@@ -65,7 +65,7 @@ describe("Btl.js", function () {
 
         it("should load ApiInfo correctly.", async function () {
 
-            let newBlt = initializeNewBlt();
+            let newBlt = initializeLocalBlt();
 
             let nodeInfo = await newBlt.getNodeInformation();
             let apiInfo = nodeInfo.apiInfo;
