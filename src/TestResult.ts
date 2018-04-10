@@ -32,4 +32,15 @@ export class TestResult {
     get transactionCount() : number {
         return this.transactions.length;
     }
+
+    get duration() : number {
+        return Math.abs(this.endTime.getTime() - this.startTime.getTime());
+    }
+
+    /**
+     * The (not really) average processing time for each transactions.
+     */
+    get averageProcessingTime() : number {
+        return this.duration / this.transactionCount;
+    }
 }

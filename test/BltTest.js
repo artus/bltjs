@@ -19,6 +19,7 @@ function initializeLocalBlt() {
 }
 
 describe("Btl.js", function () {
+    this.timeout(10000);
 
     describe("constructor", function () {
 
@@ -56,7 +57,8 @@ describe("Btl.js", function () {
             let nodeInfo = await newBlt.getNodeInformation();
             assert.notEqual(undefined, nodeInfo.docs);
             assert.notEqual(undefined, nodeInfo.keyring);
-            assert.notEqual(undefined, nodeInfo.public_key);
+            // This is due to bdb 2.0
+            //assert.equal("null", typeof nodeInfo.public_key);
             assert.notEqual(undefined, nodeInfo.software);
             assert.notEqual(undefined, nodeInfo.version);
         });
@@ -70,8 +72,8 @@ describe("Btl.js", function () {
 
             assert.notEqual(undefined, apiInfo.version);
             assert.notEqual(undefined, apiInfo.assets);
-            assert.notEqual(undefined, apiInfo.docs);
-            assert.notEqual(undefined, apiInfo.statuses);
+            //assert.notEqual(undefined, apiInfo.docs);
+            //assert.notEqual(undefined, apiInfo.statuses);
             assert.notEqual(undefined, apiInfo.streams);
             assert.notEqual(undefined, apiInfo.transactions);
         });
@@ -91,6 +93,29 @@ describe("Btl.js", function () {
             
         })
 
+        it("should complete the test without issues.", async function() {
+            let newBlt = initializeLocalBlt();
+
+            let testResult = await newBlt.testCreateTransactions("test", 5);
+
+            assert.equal(5, testResult.transactions.length);
+            assert.equal(5, testResult.responses.length);
+        });
+
     });
+
+    describe("testTransferTransactions()", function() {
+
+        it("Should return a Promise when all transactions are appended.", function(done) {
+            let newBlt = initializeLocalBlt();
+
+            newBlt.testTransferTransactions("testTransfer", 5).then(result => {
+                done();
+            }).catch(error => {
+                done(error);
+            })
+        })
+
+    })
 
 });

@@ -1,12 +1,12 @@
 import * as driver from 'bigchaindb-driver';
 import * as bip39 from 'bip39';
-import { Promise } from 'es6-promise';
 
 import { NodeInfo } from './NodeInfo';
 import { BltAsset } from './BltAsset';
 
 import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
 import { TestResult } from './TestResult';
+import { BltMetadata } from './BltMetadata';
 
 /**
  * Blt (BigchainDB Load Tester) is the main class which we use to execute functionality in regards to the bigchaindb node/cluster we connected to.
@@ -102,9 +102,10 @@ export class Blt {
     /**
      * Send a supplied amount of CREATE transactions to the BigchainDB node.
      * 
+     * @param {string} testId - The ID or name of the test.
      * @param {number} [amount = 100] - The amount of transactions to be posted to the BigchainDB network.
      */
-    testCreateTransactions(testId: string, amount: number = 1000): Promise<TestResult> {
+    testCreateTransactions(testId: string, amount: number = 100): Promise<TestResult> {
 
         let startTime = new Date();
 
@@ -114,11 +115,6 @@ export class Blt {
         for (let transactionIndex = 0; transactionIndex < amount; transactionIndex++) {
             let newTransaction = this.generateCreateTransaction(testId, transactionIndex);
             transactions.push(newTransaction);
-            /*this.connection.postTransaction(newTransaction).then(() => {
-                transactionPromises.push(this.connection.pollStatusAndFetchTransaction(newTransaction.id));
-            }).catch(error => {
-                throw new Error(error);
-            })*/
             transactionPromises.push(this.connection.postTransactionCommit(newTransaction));
         }
 
@@ -134,6 +130,52 @@ export class Blt {
                 reject(error);
             });
 
+        });
+    }
+
+    /**
+     * Create a chain of a supplied amount of TRANSFER transactions.
+     * 
+     * @param {string} testId - The ID or name of the test.
+     * @param {number} [amount = 100] - The amount of transactions to be issued.
+     */
+    testTransferTransactions(testId: string, amount: number = 100): Promise<TestResult> {
+
+        let startTime = new Date();
+        let transactions = new Array();
+        let responses = new Array();
+        let transactionIndex = 0;
+
+        let newCreateTransaction = this.generateCreateTransaction(testId);
+        transactions.push(newCreateTransaction);
+
+        return this.connection.postTransactionCommit(newCreateTransaction).then(response => {
+            responses.push(response);
+            return this.connection.getTransaction(response.id);
+        }).then(latestTransaction => {
+            return this.issueTransferTransactionRecursively(testId, latestTransaction, amount, transactionIndex, transactions, responses, startTime);
+        });
+    }
+
+    /**
+     * Chain TRANSER transactions recusrively, because loops don't play nice with promises.
+     */
+    issueTransferTransactionRecursively(testId : string, previousTransaction : any, amount: number, transactionIndex : number, transactions : Array<any>, responses : Array<any>, startTime : Date) : Promise<TestResult> {
+
+        // Check if we've reached the amount of transactions we wanted.
+        if (transactionIndex === amount) {
+            return new Promise<TestResult>((resolve, reject) => {
+                resolve(new TestResult(testId, transactions, responses, startTime, new Date()));
+            });
+        }
+
+        let newTransaction = this.generateTransferTransaction(testId, previousTransaction, transactionIndex);
+        transactions.push(newTransaction);
+        this.connection.postTransactionCommit(newTransaction).then(response => {
+            responses.push(response);
+            return this.connection.getTransaction(response.id);
+        }).then(latestTransaction => {
+            return this.issueTransferTransactionRecursively(testId, latestTransaction, amount, ++transactionIndex, transactions, responses, startTime);
         });
     }
 
@@ -154,6 +196,22 @@ export class Blt {
         );
 
         return driver.Transaction.signTransaction(newTransaction, this.generateKeyPair(testId).privateKey);
+    }
+
+    /**
+     * Create a TRANSFER transaction for a certain BltAsset with supplied ID.
+     * 
+     * @returns {any} the newly created TRANSFER transaction.
+     */
+    generateTransferTransaction(testId : string, previousTransaction: any, transferTransactionIndex : number = 0): any {
+
+        const newTransferTransaction = driver.Transaction.makeTransferTransaction(
+            [{ tx: previousTransaction, output_index: 0 }],
+            [driver.Transaction.makeOutput(driver.Transaction.makeEd25519Condition(this.generateKeyPair(testId).publicKey))],
+            new BltMetadata(transferTransactionIndex)
+        );
+
+        return driver.Transaction.signTransaction(newTransferTransaction, this.generateKeyPair(testId).privateKey);
     }
 
 }

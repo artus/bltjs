@@ -5,7 +5,6 @@ export class ApiInfo {
     public version : string;
     public assets : string;
     public docs : string;
-    public statuses : string;
     public streams : string;
     public transactions : string;
 
@@ -19,7 +18,6 @@ export class ApiInfo {
 
         newApiInfo.assets = jsonObject.assets;
         newApiInfo.docs = jsonObject.docs;
-        newApiInfo.statuses = jsonObject.statuses;
         newApiInfo.streams = jsonObject.streams;
         newApiInfo.transactions = jsonObject.transactions;
 
