@@ -18,3 +18,9 @@ install:
 
 script:
   - npm run build
+
+after_success:
+  - npm login 
+
+notifications:
+  email: false

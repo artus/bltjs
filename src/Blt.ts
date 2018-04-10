@@ -2,11 +2,12 @@ import * as driver from 'bigchaindb-driver';
 import * as bip39 from 'bip39';
 
 import { NodeInfo } from './NodeInfo';
+import { ApiInfo } from './ApiInfo';
 import { BltAsset } from './BltAsset';
+import { BltMetadata } from './BltMetadata';
+import { TestResult } from './TestResult';
 
 import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
-import { TestResult } from './TestResult';
-import { BltMetadata } from './BltMetadata';
 
 /**
  * Blt (BigchainDB Load Tester) is the main class which we use to execute functionality in regards to the bigchaindb node/cluster we connected to.
@@ -115,8 +116,11 @@ export class Blt {
         for (let transactionIndex = 0; transactionIndex < amount; transactionIndex++) {
             let newTransaction = this.generateCreateTransaction(testId, transactionIndex);
             transactions.push(newTransaction);
-            transactionPromises.push(this.connection.postTransactionCommit(newTransaction));
-            onTransactionIssued(testId, newTransaction, transactionIndex);
+            let transactionPromise = this.connection.postTransactionCommit(newTransaction);
+            transactionPromise.then(response => {
+                onTransactionIssued(testId, newTransaction, response, transactionIndex);
+            });
+            transactionPromises.push(transactionPromise);
         }
 
         return new Promise<TestResult>((resolve, reject) => {
@@ -151,7 +155,7 @@ export class Blt {
         transactions.push(newCreateTransaction);
 
         return this.connection.postTransactionCommit(newCreateTransaction).then(response => {
-            onTransactionIssued(testId, newCreateTransaction, transactionIndex);
+            onTransactionIssued(testId, newCreateTransaction, response, transactionIndex);
             responses.push(response);
             return this.connection.getTransaction(response.id);
         }).then(latestTransaction => {
@@ -174,7 +178,7 @@ export class Blt {
         let newTransaction = this.generateTransferTransaction(testId, previousTransaction, transactionIndex);
         transactions.push(newTransaction);
         return this.connection.postTransactionCommit(newTransaction).then(response => {
-            onTransactionIssued(testId, newTransaction, transactionIndex);
+            onTransactionIssued(testId, newTransaction, response, transactionIndex);
             responses.push(response);
             return this.connection.getTransaction(response.id);
         }).then(latestTransaction => {
@@ -218,3 +222,9 @@ export class Blt {
     }
 
 }
+
+export { NodeInfo };
+export { ApiInfo };
+export { BltAsset };
+export { BltMetadata };
+export { TestResult };

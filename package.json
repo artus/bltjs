@@ -2,7 +2,7 @@
   "name": "bltjs",
   "version": "1.0.0",
   "description": "A BigchainDB Load Tester",
-  "main": "dist/blt.js",
+  "main": "dist/Blt.js",
   "scripts": {
     "test": "mocha",
     "compile": "cd ./src && tsc",
