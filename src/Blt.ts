@@ -105,7 +105,7 @@ export class Blt {
      * @param {string} testId - The ID or name of the test.
      * @param {number} [amount = 100] - The amount of transactions to be posted to the BigchainDB network.
      */
-    testCreateTransactions(testId: string, amount: number = 100): Promise<TestResult> {
+    testCreateTransactions(testId: string, amount: number = 100, onTransactionIssued : any = () => {}): Promise<TestResult> {
 
         let startTime = new Date();
 
@@ -116,6 +116,7 @@ export class Blt {
             let newTransaction = this.generateCreateTransaction(testId, transactionIndex);
             transactions.push(newTransaction);
             transactionPromises.push(this.connection.postTransactionCommit(newTransaction));
+            onTransactionIssued(testId, newTransaction, transactionIndex);
         }
 
         return new Promise<TestResult>((resolve, reject) => {
@@ -139,7 +140,7 @@ export class Blt {
      * @param {string} testId - The ID or name of the test.
      * @param {number} [amount = 100] - The amount of transactions to be issued.
      */
-    testTransferTransactions(testId: string, amount: number = 100): Promise<TestResult> {
+    testTransferTransactions(testId: string, amount: number = 100, onTransactionIssued : any = () => {}): Promise<TestResult> {
 
         let startTime = new Date();
         let transactions = new Array();
@@ -150,17 +151,18 @@ export class Blt {
         transactions.push(newCreateTransaction);
 
         return this.connection.postTransactionCommit(newCreateTransaction).then(response => {
+            onTransactionIssued(testId, newCreateTransaction, transactionIndex);
             responses.push(response);
             return this.connection.getTransaction(response.id);
         }).then(latestTransaction => {
-            return this.issueTransferTransactionRecursively(testId, latestTransaction, amount, transactionIndex, transactions, responses, startTime);
+            return this.issueTransferTransactionRecursively(testId, latestTransaction, amount, ++transactionIndex, transactions, responses, startTime, onTransactionIssued);
         });
     }
 
     /**
      * Chain TRANSER transactions recusrively, because loops don't play nice with promises.
      */
-    issueTransferTransactionRecursively(testId : string, previousTransaction : any, amount: number, transactionIndex : number, transactions : Array<any>, responses : Array<any>, startTime : Date) : Promise<TestResult> {
+    issueTransferTransactionRecursively(testId : string, previousTransaction : any, amount: number, transactionIndex : number, transactions : Array<any>, responses : Array<any>, startTime : Date, onTransactionIssued: any = () => {}) : Promise<TestResult> {
 
         // Check if we've reached the amount of transactions we wanted.
         if (transactionIndex === amount) {
@@ -171,11 +173,12 @@ export class Blt {
 
         let newTransaction = this.generateTransferTransaction(testId, previousTransaction, transactionIndex);
         transactions.push(newTransaction);
-        this.connection.postTransactionCommit(newTransaction).then(response => {
+        return this.connection.postTransactionCommit(newTransaction).then(response => {
+            onTransactionIssued(testId, newTransaction, transactionIndex);
             responses.push(response);
             return this.connection.getTransaction(response.id);
         }).then(latestTransaction => {
-            return this.issueTransferTransactionRecursively(testId, latestTransaction, amount, ++transactionIndex, transactions, responses, startTime);
+            return this.issueTransferTransactionRecursively(testId, latestTransaction, amount, ++transactionIndex, transactions, responses, startTime, onTransactionIssued);
         });
     }
 
