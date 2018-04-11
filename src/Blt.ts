@@ -74,6 +74,7 @@ export class Blt {
 
     /**
      * Get the url of the api. (e.g. "https://test.bigchaindb.com/api/v1/")
+     * 
      * @returns {string} The api url.
      */
     get api_url(): string {
@@ -105,8 +106,11 @@ export class Blt {
      * 
      * @param {string} testId - The ID or name of the test.
      * @param {number} [amount = 100] - The amount of transactions to be posted to the BigchainDB network.
+     * @param {any} [onTransactionIssued = () => {}] - A callback function that can be supplied which gets called each time a transaction is issued.
+     * 
+     * @returns {Promise<TestResult>} A promise that will resolve the TestResult for this test.
      */
-    testCreateTransactions(testId: string, amount: number = 100, onTransactionIssued : any = () => {}): Promise<TestResult> {
+    testCreateTransactions(testId: string, amount: number = 100, onTransactionIssued: any = () => { }): Promise<TestResult> {
 
         let startTime = new Date();
 
@@ -143,8 +147,11 @@ export class Blt {
      * 
      * @param {string} testId - The ID or name of the test.
      * @param {number} [amount = 100] - The amount of transactions to be issued.
+     * @param {any} [onTransactionIssued = () => {}] - A callback function that can be supplied which gets called each time a transaction is issued.
+     * 
+     * @returns {Promise<TestResult>} A promise that will resolve the TestResult for this test.
      */
-    testTransferTransactions(testId: string, amount: number = 100, onTransactionIssued : any = () => {}): Promise<TestResult> {
+    testTransferTransactions(testId: string, amount: number = 100, onTransactionIssued: any = () => { }): Promise<TestResult> {
 
         let startTime = new Date();
         let transactions = new Array();
@@ -165,8 +172,19 @@ export class Blt {
 
     /**
      * Chain TRANSER transactions recusrively, because loops don't play nice with promises.
+     * 
+     * @param {string} testId - The name/ID of the test. Will also be used as seed for the keypairs to be used in the test-transactions.
+     * @param {any} previousTransaction - The transaction that should be transferred.
+     * @param {number} amound - The amount of times the transaction should be transferred in total.
+     * @param {number} transactionIndex - The index of this transaction relative to the total amount of transactions that need to be issued in this test.
+     * @param {Array<any>} transactions - The array where all issued transactions will be stored.
+     * @param {Array<any>} responses - The array where all the responses will be stored.
+     * @param {Date} startTime - The timestamp indicating the start of the test.
+     * @param {any} [onTransactionIssued = () => {}] - A callback function that can be supplied which gets called each time a transaction is issued.
+     * 
+     * @returns {Promise<TestResult>} A promise that will resolve the TestResult for this test.
      */
-    issueTransferTransactionRecursively(testId : string, previousTransaction : any, amount: number, transactionIndex : number, transactions : Array<any>, responses : Array<any>, startTime : Date, onTransactionIssued: any = () => {}) : Promise<TestResult> {
+    issueTransferTransactionRecursively(testId: string, previousTransaction: any, amount: number, transactionIndex: number, transactions: Array<any>, responses: Array<any>, startTime: Date, onTransactionIssued: any = () => { }): Promise<TestResult> {
 
         // Check if we've reached the amount of transactions we wanted.
         if (transactionIndex === amount) {
@@ -189,6 +207,9 @@ export class Blt {
     /**
      * Create a CREATE transaction with a new BltAsset as asset.
      * 
+     * @param {string} testId - The name/ID of the test. Will also be used as seed for the keypairs to be used in the test-transactions.
+     * @param {number} [transferTransactionIndex = 0] - The index of this transaction relative to the total amount of transactions that need to be issued in this test.
+     * 
      * @returns {any} The newly created CREATE transaction.
      */
     generateCreateTransaction(testId: string, transactionIndex: number = 0): any {
@@ -208,9 +229,13 @@ export class Blt {
     /**
      * Create a TRANSFER transaction for a certain BltAsset with supplied ID.
      * 
+     * @param {string} testId - The name/ID of the test. Will also be used as seed for the keypairs to be used in the test-transactions.
+     * @param {any} previousTransaction - The transaction that should be transferred on.
+     * @param {number} [transferTransactionIndex = 0] - The index of this transaction relative to the total amount of transactions that need to be issued in this test.
+     * 
      * @returns {any} the newly created TRANSFER transaction.
      */
-    generateTransferTransaction(testId : string, previousTransaction: any, transferTransactionIndex : number = 0): any {
+    generateTransferTransaction(testId: string, previousTransaction: any, transferTransactionIndex: number = 0): any {
 
         const newTransferTransaction = driver.Transaction.makeTransferTransaction(
             [{ tx: previousTransaction, output_index: 0 }],
@@ -223,8 +248,10 @@ export class Blt {
 
 }
 
-export { NodeInfo };
-export { ApiInfo };
-export { BltAsset };
-export { BltMetadata };
-export { TestResult };
+export {
+    NodeInfo,
+    ApiInfo,
+    BltAsset,
+    BltMetadata,
+    TestResult
+};
