@@ -121,10 +121,10 @@ export class Blt {
             let newTransaction = this.generateCreateTransaction(testId, transactionIndex);
             transactions.push(newTransaction);
             let transactionPromise = this.connection.postTransactionCommit(newTransaction);
+            transactionPromises.push(transactionPromise);
             transactionPromise.then(response => {
                 onTransactionIssued(testId, newTransaction, response, transactionIndex);
             });
-            transactionPromises.push(transactionPromise);
         }
 
         return new Promise<TestResult>((resolve, reject) => {
