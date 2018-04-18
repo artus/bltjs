@@ -14,7 +14,7 @@ import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
  */
 export class Blt {
 
-    private connection: any;
+    public connection: any;
     readonly keySeed: string = "Blt";
 
     /**
