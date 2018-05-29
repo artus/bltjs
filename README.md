@@ -1,6 +1,6 @@
 # **B**igchainDB **L**oad **T**ester
 
-[![Build Status](https://travis-ci.org/artusvranken/bltjs.svg?branch=master)](https://travis-ci.org/artusvranken/bltjs)
+[![Build Status](https://travis-ci.org/artus/bltjs.svg?branch=master)](https://travis-ci.org/artus/bltjs)
 
 ## What is blt.js?
 
