@@ -14,7 +14,7 @@ npm install bltjs
 
 ## Usage
 
-1. Initialization
+### 1. Initialization
 
 ```javascript
 const bltjs = require("../dist/Blt.js");
@@ -23,7 +23,7 @@ const bltjs = require("../dist/Blt.js");
 let newBlt = new bltjs.Blt("https", "your.bigchaindb.host", "8080");
 ```
 
-2. Testing CREATE-transactions
+### 2. Testing CREATE-transactions
 
 You can test the speed of a supplied amount of [CREATE-transactions](http://docs.bigchaindb.com/en/latest/transaction-concepts.html#create-transactions) running in parallel. You supply a string that contains an identifier for the test, and the amount of CREATE-transactions to perform.
 
@@ -40,7 +40,7 @@ newBlt.testCreateTransactions("some_test_identifier", 500).then(result => {
 })
 ```
 
-3. Testing TRANSFER-transactions
+### 3. Testing TRANSFER-transactions
 
 Testing a chain of [TRANSFER-transactions](http://docs.bigchaindb.com/en/latest/transaction-concepts.html#transfer-transactions) will always happen in series, as they build upon eachother. You issue them in relatively the same way as the chain of CREATE-transactions: you supply a test identifier and the amount of TRANSFER-transactions that should be chained.
 
