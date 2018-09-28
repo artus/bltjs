@@ -56,7 +56,6 @@ describe("Btl.js", function () {
 
             let nodeInfo = await newBlt.getNodeInformation();
             assert.notEqual(undefined, nodeInfo.docs);
-            assert.notEqual(undefined, nodeInfo.keyring);
             // This is due to bdb 2.0
             //assert.equal("null", typeof nodeInfo.public_key);
             assert.notEqual(undefined, nodeInfo.software);
